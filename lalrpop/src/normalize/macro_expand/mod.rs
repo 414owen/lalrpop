@@ -475,16 +475,11 @@ impl MacroExpander {
                     types: vec![base_symbol_ty],
                 };
 
-                let plus_repeat = Box::new(RepeatSymbol {
-                    op: RepeatOp::Plus,
-                    symbol: repeat.symbol,
-                });
-
                 Ok(GrammarItem::Nonterminal(NonterminalData {
                     visibility: Visibility::Priv,
                     span,
-                    name,
-                    attributes: inline(span),
+                    name: name.clone(),
+                    attributes: vec![],
                     args: vec![],
                     type_decl: Some(ty_ref),
                     alternatives: vec![
@@ -496,23 +491,29 @@ impl MacroExpander {
                             action: action("alloc::vec![]"),
                             attributes: vec![],
                         },
-                        // X* = <v:X+>
+                        // X* = <v:X*> <e:X>
                         Alternative {
                             span,
                             expr: ExprSymbol {
-                                symbols: vec![Symbol::new(
-                                    span,
-                                    SymbolKind::Name(
-                                        Name::immut(v),
-                                        Box::new(Symbol::new(
-                                            span,
-                                            SymbolKind::Repeat(plus_repeat),
-                                        )),
+                                symbols: vec![
+                                    Symbol::new(
+                                        span,
+                                        SymbolKind::Name(
+                                            Name::immut(v),
+                                            Box::new(Symbol::new(
+                                                span,
+                                                SymbolKind::Nonterminal(name),
+                                            )),
+                                        ),
                                     ),
-                                )],
+                                    Symbol::new(
+                                        span,
+                                        SymbolKind::Name(Name::immut(e), Box::new(repeat.symbol)),
+                                    ),
+                                ],
                             },
                             condition: None,
-                            action: action("v"),
+                            action: action("{ let mut v = v; v.push(e); v }"),
                             attributes: vec![],
                         },
                     ],

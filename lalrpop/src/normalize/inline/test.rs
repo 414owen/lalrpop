@@ -82,7 +82,7 @@ fn issue_55() {
 grammar;
 
 pub E: () = {
-    "X" "{" <a:AT*> <e:ET> <b:AT*> "}" => ()
+    "X" "{" <a:AT?> <e:ET> <b:AT?> "}" => ()
 };
 
 AT: () = {
@@ -99,6 +99,6 @@ ET: () = {
 
     // The problem in issue #55 was that we would inline both `AT*`
     // the same way, so we ended up with `E = X { ET }` and `E = X {
-    // AT+ ET AT+ }` but not `E = X { AT+ ET }` or `E = X { ET AT+ }`.
+    // AT ET AT }` but not `E = X { AT ET }` or `E = X { ET AT }`.
     assert!(grammar.productions_for(&nt).len() == 4);
 }

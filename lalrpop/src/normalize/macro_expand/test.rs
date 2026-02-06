@@ -33,20 +33,14 @@ grammar;
         => None
     };
 
-    #[inline]
     `(<"Id"> ",")*`: alloc::vec::Vec<#`(<"Id"> ",")`#> = {
         => alloc::vec![],
-        <v:`(<"Id"> ",")+`> => v,
+        <v:`(<"Id"> ",")*`> <e:`(<"Id"> ",")`> => { let mut v = v; v.push(e); v },
     };
 
     #[inline]
     `(<"Id"> ",")`: #"Id"# = {
         <"Id"> "," => <>,
-    };
-
-    `(<"Id"> ",")+`: alloc::vec::Vec<#`(<"Id"> ",")`#> = {
-        `(<"Id"> ",")` => alloc::vec![<>],
-        <v:`(<"Id"> ",")+`> <e:`(<"Id"> ",")`> => { let mut v = v; v.push(e); v },
     };
 "##,
     )
